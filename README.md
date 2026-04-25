@@ -1,131 +1,195 @@
-# Pneumonia Detection from Chest X-Rays
+# 🧠 AI-Powered Pneumonia Detection System
 
-A deep learning project that uses Convolutional Neural Networks (CNN) to detect pneumonia from chest X-ray images.
+An end-to-end deep learning system that detects pneumonia from chest X-ray images using a custom Convolutional Neural Network (CNN).
+The project integrates model development, uncertainty-aware predictions, and a user-facing web interface for real-world usability.
 
-## 📋 Project Overview
+---
 
-This project implements a CNN-based image classifier to distinguish between normal chest X-rays and those showing signs of pneumonia. The model achieves 90% accuracy on the test set.
+## 🚀 Overview
 
-## 🎯 Results
+This project focuses on building a **medical imaging classification system** that prioritizes **high sensitivity** while handling uncertainty in predictions.
 
-- **Validation Accuracy**: 97.51%
-- **Test Accuracy**: 90.06%
-- **Precision**: 90.06%
-- **Recall**: 90.06%
-- **AUC**: 96.33%
+It goes beyond basic classification by introducing:
+
+* Confidence-based decision thresholds
+* An **“Inconclusive” prediction class**
+* A full-stack deployment (Flask + Gradio)
+
+---
+
+## 🧩 Features
+
+* 🧠 Custom CNN model trained on chest X-ray images
+* ⚠️ Uncertainty-aware prediction system (reduces overconfident errors)
+* 📊 Probability breakdown for each prediction
+* 🌐 Web interface for real-time inference
+* 🤖 Gradio demo deployed on Hugging Face
+* 🐳 Dockerized backend (for production-ready deployment)
+
+---
 
 ## 🏗️ Model Architecture
 
-- **Input**: 256×256 grayscale images
-- **Convolutional Blocks**: 3 blocks with increasing filters (32 → 64 → 128)
-- **Pooling**: MaxPooling after each block
-- **Regularization**: Dropout (0.25 and 0.5)
-- **Dense Layers**: 256 → 128 neurons
-- **Output**: 2 classes (NORMAL/PNEUMONIA) with softmax
-- **Total Parameters**: 33,874,274
+The model is a **custom CNN** with three convolutional blocks:
 
-## 📊 Dataset
+* Conv2D → Conv2D → MaxPooling → Dropout (×3)
+* Flatten → Dense(256) → Dense(128) → Softmax (2 classes)
 
-- **Source**: Chest X-Ray Images (Pneumonia)
-- **Total Images**: ~5,856
-- **Classes**: NORMAL (1,584), PNEUMONIA (4,272)
-- **Split**: 
-  - Training: 4,187 images
-  - Validation: 1,045 images
-  - Test: 624 images
+**Input:** 256 × 256 grayscale images
+**Output:** Probability distribution over:
 
-**Note**: Dataset not included in repository due to size. Download from [Kaggle](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia).
+* NORMAL
+* PNEUMONIA
 
-## 🚀 Getting Started
+---
 
-### Prerequisites
+## 📊 Performance Metrics
 
-```bash
-Python 3.8+
-TensorFlow 2.19.0
+| Metric                           | Value |
+| -------------------------------- | ----- |
+| Accuracy                         | 88.9% |
+| AUC                              | 0.96  |
+| Sensitivity (Recall - Pneumonia) | 98%   |
+| Specificity (Recall - Normal)    | 73%   |
+
+### 🔍 Key Insight
+
+* The model is **highly sensitive** → rarely misses pneumonia
+* Trade-off: higher false positives for normal cases
+
+---
+
+## ⚠️ Uncertainty Handling (Core Contribution)
+
+Instead of forcing every prediction into a binary class, the system introduces a third outcome:
+
+| Pneumonia Probability | Output       |
+| --------------------- | ------------ |
+| ≥ 85%                 | PNEUMONIA    |
+| ≤ 40%                 | NORMAL       |
+| 40% – 85%             | INCONCLUSIVE |
+
+### 🎯 Why this matters
+
+* Prevents overconfident misclassification
+* Reflects real-world medical ambiguity
+* Improves trustworthiness of AI predictions
+
+---
+
+## 🌐 Application Interfaces
+
+### 🔹 Flask Web App
+
+* Image upload interface
+* Prediction + confidence score
+* Risk indicator and warnings
+* Probability breakdown
+
+### 🔹 Gradio Demo (Live)
+
+* Simplified UI for quick testing
+* Public deployment via Hugging Face
+
+---
+
+## 🐳 Deployment
+
+### ✔️ Hugging Face (Completed)
+
+* Gradio-based deployment
+* Public and shareable demo
+
+### ⚙️ Docker (Prepared)
+
+* Containerized backend using Flask
+* Gunicorn-based production server
+* Compatible with cloud platforms (Render, Railway)
+
+> Note: Deployment on some platforms may require environment-specific adjustments due to TensorFlow compatibility constraints.
+
+---
+
+## 📁 Project Structure
+
+```
+root/
+├── app.py
+├── best_pneumonia_cnn.keras
+├── requirements.txt
+├── Dockerfile
+├── templates/
+├── static/
+├── training/
 ```
 
-### Installation
+---
 
-1. Clone the repository:
+## ⚙️ Installation & Setup
+
+### 1. Clone Repository
+
 ```bash
-git clone https://github.com/Mokshaa7/ai-powered-medical-image-analysis.git
+git clone https://github.com/your-username/pneumonia-detection.git
+cd pneumonia-detection
 ```
 
-2. Install dependencies:
+### 2. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Download the dataset and organize as:
+### 3. Run Locally
 
-data/
-└── chest_xray/
-    ├── train/                # Data used for training the model
-    │   ├── NORMAL/           # Images of healthy lungs
-    │   └── PNEUMONIA/        # Images of lungs with pneumonia
-    ├── val/                  # Data used for validation during training
-    │   ├── NORMAL/
-    │   └── PNEUMONIA/
-    └── test/                 # Data used for final model evaluation
-        ├── NORMAL/
-        └── PNEUMONIA/
-
-
-### Training
-
-Using Jupyter Notebook** (Recommended for exploration)
 ```bash
-jupyter notebook pneumonia_detection_training.ipynb
+python app.py
 ```
 
-### Configuration
+---
 
-Edit `config.py` to modify:
-- Image size
-- Batch size
-- Learning rate
-- Augmentation parameters
-- Number of epochs
+## 🧠 Key Learnings
 
-## 📁 Project Structure
-AIPoweredMedicalImageAnalysis/
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── pneumonia_detection_training.ipynb  # Training notebook
+* Confidence ≠ Accuracy in deep learning models
+* Neural networks can be overconfident on ambiguous inputs
+* Importance of **model calibration and uncertainty handling**
+* Real-world trade-offs between sensitivity and specificity
+* Challenges in deploying ML models across environments
 
-## 🔧 Training Details
+##
 
-- **Platform**: Google Colab (T4 GPU)
-- **Training Time**: ~30-60 minutes
-- **Framework**: TensorFlow/Keras
-- **Optimizer**: Adam (lr=0.001)
-- **Loss**: Categorical Crossentropy
-- **Callbacks**: Early Stopping, ReduceLROnPlateau, ModelCheckpoint
-
-## 📈 Data Augmentation
-
-- Rotation: ±15 degrees
-- Width/Height Shift: ±10%
-- Zoom: ±10%
-- Horizontal Flip: Enabled
-- Brightness: 80%-120%
-
+---
 
 ## ⚠️ Disclaimer
 
-This model is for educational and research purposes only. It should not be used as a substitute for professional medical diagnosis. Always consult qualified healthcare professionals for medical advice.
+This project is for **educational and research purposes only**.
+It is **not intended for clinical or diagnostic use**.
 
+---
 
 ## 👤 Author
 
-[Moksha Shah]
-- GitHub: [@Mokshaa7](https://github.com/Mokshaa7)
-- LinkedIn: [Moksha Shah](www.linkedin.com/in/moksha-shah-558518343)
+**Moksha Shah**
+Computer Science Engineering Student
 
-## 🙏 Acknowledgments
+link: https://huggingface.co/spaces/mokiiii/ai_powered_pneumonia_detection
+---
 
-- Dataset: Kaggle
-- TensorFlow/Keras team
-- Google Colab for free GPU access
+## ⭐ Acknowledgements
+
+* Open-source medical imaging datasets
+* TensorFlow & Keras community
+* Hugging Face Spaces for deployment support
+
+---
+
+## 📌 Summary
+
+This project demonstrates:
+
+* End-to-end ML system design
+* Real-world model evaluation trade-offs
+* Deployment and UI integration
+* Responsible AI practices through uncertainty handling
+
+---
